@@ -1,0 +1,43 @@
+
+Here is the task I want to accomplish end-to-end:
+
+TASK: A critical crude charge pump (P-102A) in the Crude Distillation Unit
+has shown rising vibration over 72 hours (drive-end bearing climbed from
+2.1 mm/s to 6.8 mm/s RMS, near the ISO 10816 alarm threshold of 7.1 mm/s).
+I need a full root-cause analysis and maintenance recommendation report.
+
+The expected end-to-end workflow is:
+1. Scan and ingest relevant documents from a local knowledge base
+   (equipment datasheet, CDU P&ID, vibration SOP, maintenance work orders,
+   O&M manual, past analysis reports, a scanned technician field logbook).
+2. Deep-analyze them: read the P&ID to map the pump circuit, cross-reference
+   the 72-hour vibration trend against operating conditions, classify the
+   severity against ISO 10816 limits, and rank candidate root causes
+   (cavitation, bearing wear, impeller imbalance, misalignment, strainer
+   fouling).
+3. Request human approval before any write/execute action, log everything
+   to an audit trail, and respect role-based access.
+4. Generate a polished final engineering report (PDF) with an executive
+   summary, vibration trend chart, annotated P&ID section, data table,
+   root-cause ranking, prioritized maintenance actions, and references —
+   plus a related work-order request (Word/Excel).
+
+Please answer the following:
+A) CAN YOU DO THIS? — Given that I will integrate you with RAG
+   (nomic-embed-text + Chroma), an orchestration layer (LangGraph), MCP
+   tools (filesystem, database), and Python libraries for document/chart
+   generation (python-docx, openpyxl, matplotlib, reportlab) — list
+   exactly which parts of this task you can handle yourself, and which
+   parts depend on those external tools.
+B) What documents/data do you need from me to actually accomplish this
+   specific task? List every input file and data source I must provide
+   (e.g., the P&ID image, the equipment datasheet, the 72-hour vibration
+   log, operating conditions) — both in terms of content and format.
+C) What specific tools or capabilities are missing that I should build
+   or connect for this workflow to run reliably?
+D) For the P&ID vision analysis specifically: how well can you handle
+   reading symbols and connections in an engineering diagram, and what
+   would make that analysis more reliable (e.g., higher-res image,
+   diagram legend, text annotations)?
+E) What do you recommend as the safe order of operations for this task,
+   considering the human-approval gates and audit requirements? 
