@@ -1,0 +1,15 @@
+# Ollama stays on the HOST on Apple Silicon -- containers get no Metal access.
+# Only the tool layer is containerised.
+services:
+  tools:
+    build: .
+    network_mode: bridge
+    ports: ["127.0.0.1:8000:8000"]      # localhost only, never 0.0.0.0
+    volumes:
+      - ./workspace_data:/app/workspace_data
+      - /var/run/docker.sock:/var/run/docker.sock   # to spawn sandbox siblings
+    environment:
+      OLLAMA_HOST: http://host.docker.internal:11434
+      RAG_ENDPOINT: http://rag:8100/search
+      SANDBOX_IMAGE: python:3.12-slim
+    command: uvicorn tools.http_api:app --host 0.0.0.0 --port 8000

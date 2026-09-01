@@ -1,0 +1,47 @@
+{
+  "models": [
+    {
+      "id": "qwen3.5:9b",
+      "role": "general",
+      "capabilities": [
+        "reasoning",
+        "summarization",
+        "rag",
+        "writing",
+        "planning",
+        "tool_use",
+        "vision",
+        "ocr_assist"
+      ],
+      "size_gb": 6.6,
+      "context_default": 8192,
+      "notes": "Multimodal + tool calling. Primary workhorse."
+    },
+    {
+      "id": "qwen2.5-coder:7b",
+      "role": "code",
+      "capabilities": [
+        "code_generation",
+        "debugging",
+        "testing"
+      ],
+      "size_gb": 4.7,
+      "context_default": 8192,
+      "notes": "Separate route so model selection is demonstrable."
+    },
+    {
+      "id": "nomic-embed-text",
+      "role": "embedding",
+      "capabilities": [
+        "embedding"
+      ],
+      "size_gb": 0.27,
+      "context_default": 2048,
+      "notes": "Indexing and retrieval only."
+    }
+  ],
+  "aliases": {
+    "general_light": "qwen3.5:4b",
+    "code_light": "qwen2.5-coder:3b"
+  }
+}
