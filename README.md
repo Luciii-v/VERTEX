@@ -21,7 +21,52 @@ tests/test_smoke.py   17 checks on the tool layer
 tests/test_agent.py   15 checks on routing, MCP and guardrails (no Ollama needed)
 ```
 
-## Quick start
+## 🚀 Quick Start for Teammates (Running the Full Stack)
+
+To run the complete Sovereign Workbench (Backend + Electron UI) on your local machine, follow these steps:
+
+### 1. Set up the Python AI Backend
+```bash
+# Clone the repository
+git clone https://github.com/Luciii-v/VERTEX.git
+cd VERTEX
+
+# Create and activate a python virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install backend dependencies
+pip install -r requirements.txt
+
+# Pull the secure Docker sandbox image (requires Docker Desktop running)
+docker pull python:3.12-slim
+
+# Start the local Ollama models (Requires Ollama installed)
+ollama pull qwen3.5:9b
+ollama serve 
+```
+
+### 2. Start the Backend API Server
+In a new terminal, activate the environment and start the API:
+```bash
+cd VERTEX
+source .venv/bin/activate
+uvicorn tools.http_api:app --host 127.0.0.1 --port 8000
+```
+
+### 3. Launch the Electron Frontend UI
+In a final terminal window, install the Node dependencies and run the UI shell:
+```bash
+cd VERTEX/frontend/vertex_mac
+npm install
+npx electron main.js
+```
+
+### Note on Editing the UI:
+If you need to edit the React UI components, the unminified source code is located in `frontend/ui_source/`. You can navigate there, run `npm install`, edit the `.tsx` files, test with `npm run dev`, and compile your changes with `npm run build` when finished!
+
+
+## Backend Details
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
