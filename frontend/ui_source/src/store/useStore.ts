@@ -142,20 +142,23 @@ export const useStore = create<AppState>((set, get) => ({
     });
   },
 
-  sendMessage: (content, attachments) => {
+  sendMessage: async (content, attachments) => {
     if (!content.trim() && (!attachments || attachments.length === 0)) return;
 
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const userMsgId = `msg-user-${Date.now()}`;
-
     const attachmentNote = attachments && attachments.length > 0
-      ? `\n\n*[Attached: ${attachments.map(f => f.name).join(', ')}]*`
+      ? `
+
+*[Attached: ${attachments.map(f => f.name).join(', ')}]*`
       : '';
+    
+    const fullQuery = content + attachmentNote;
 
     const userMessage: ChatMessage = {
       id: userMsgId,
       sender: 'user',
-      content: content + attachmentNote,
+      content: fullQuery,
       timestamp: timeStr,
     };
 
@@ -163,162 +166,129 @@ export const useStore = create<AppState>((set, get) => ({
       messages: [...state.messages, userMessage],
     }));
 
-    // Add audit log for user prompt
-    const auditUserMsg: AuditLogEntry = {
-      id: `aud-${Date.now()}`,
-      timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-      user: get().userName,
-      action: 'PROMPT_SUBMITTED',
-      tool: 'Agent Console',
-      details: `Submitted prompt: "${content.substring(0, 45)}..."`,
-      status: 'SUCCESS',
-      ipAddress: '127.0.0.1 (LOCAL)',
-      severity: 'INFO',
-    };
-
-    set((state) => ({ auditLogs: [auditUserMsg, ...state.auditLogs] }));
-
-    // Simulate Agent autonomous response with progress bar and tool executions
     const agentMsgId = `msg-agent-${Date.now()}`;
     const agentMessagePlaceholder: ChatMessage = {
       id: agentMsgId,
       sender: 'agent',
-      content: 'Initializing sovereign agent inference engine...',
+      content: 'Initializing inference...',
       timestamp: timeStr,
       isStreaming: true,
       progressPercent: 15,
-      progressSubStep: 'Querying Filesystem MCP & P&ID Analyzer...',
+      progressSubStep: 'Starting...',
     };
 
     set((state) => ({
       messages: [...state.messages, agentMessagePlaceholder],
     }));
 
-    // Step 1: 1 second in - update progress
-    setTimeout(() => {
-      set((state) => ({
-        messages: state.messages.map((m) => {
-          if (m.id === agentMsgId) {
-            return {
-              ...m,
-              progressPercent: 55,
-              progressSubStep: 'Parsing telemetry tags & generating frequency graph...',
-            };
-          }
-          return m;
-        })
-      }));
-    }, 900);
-
-    // Step 2: 2 seconds in - complete response with tool calls
-    setTimeout(() => {
-      const isQueryingPump = content.toLowerCase().includes('pump') || content.toLowerCase().includes('p-102') || content.toLowerCase().includes('vibration');
-      const isQueryingHeatEx = content.toLowerCase().includes('heat') || content.toLowerCase().includes('exchanger') || content.toLowerCase().includes('e-101');
-      
-      let responseText = '';
-      let toolCalls: EmbeddedToolCall[] = [];
-      let approvalReq = undefined;
-
-      if (isQueryingHeatEx) {
-        responseText = `### Sovereign Diagnostic Analysis: Heat Exchanger E-101
-
-**Telemetry Summary:**
-- Shell Inlet Temp: **210°C** | Outlet Temp: **168°C**
-- Tube Delta P: **1.4 bar** (0.4 bar above baseline rating)
-- Overall Heat Transfer Coefficient (U): **420 W/m²·K** (Degraded by 12.5%)
-
-**Root Cause Hypothesis:**
-Heavy crude asphaltic deposition on tube surfaces resulting in thermal resistance buildup.
-
-**Action Plan:**
-1. Execute backwashing procedure on line #12-CDU-402.
-2. Prepare online anti-fouling chemical injection program.`;
-
-        toolCalls = [
-          {
-            id: `tc-e101-1`,
-            type: 'file_retrieval',
-            title: 'Retrieved: E-101_THERMAL_LOG_2026.PDF',
-            subtitle: 'Infrared scan confirmed 8% fouling index',
-            status: 'SUCCESS',
-            timestamp: timeStr,
+    try {
+      const res = await fetch("http://127.0.0.1:8000/investigate", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              "X-User": get().userName,
+              "X-Role": "engineer"
           },
-          {
-            id: `tc-e101-2`,
-            type: 'chart_generation',
-            title: 'Generated: heat_transfer_u_coefficient.png',
-            subtitle: 'U-Value decline trend plotted over last 30 days',
-            status: 'SUCCESS',
-            timestamp: timeStr,
+          body: JSON.stringify({ query: fullQuery })
+      });
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let logs = "";
+      let finalAnswer: string | null = null;
+      let buffer = "";
+
+      while (true) {
+          const { value, done } = await reader.read();
+          if (done) {
+              if (buffer.trim()) {
+                  try {
+                      const parsed = JSON.parse(buffer.replace(/^data: /, "").trim());
+                      if (parsed.type === "final") finalAnswer = parsed.content;
+                  } catch (e) {}
+              }
+              break;
           }
-        ];
-
-        approvalReq = {
-          id: `appr-${Date.now()}`,
-          action: 'Approve online chemical injection dosage increment (+5 ppm)',
-          includes: ['E-101 thermal calculation sheet', 'Chemical compatibility matrix'],
-          requestedBy: 'VERTEX AGENT [PROCESS ADVISOR]',
-          timestamp: timeStr,
-          status: 'PENDING' as const,
-          riskLevel: 'MEDIUM' as const,
-        };
-      } else {
-        responseText = `### Sovereign Diagnostic Response
-
-I have analyzed your query **"${content}"** against the on-premise refinery knowledge base.
-
-**Execution Details:**
-- Searched 8 indexed P&IDs and SOP documents via **Filesystem MCP**.
-- Queried historian sensor telemetry via **Postgres MCP**.
-- Local **QWEN3.5-9B** model inference completed in 1.4 seconds with zero external network connectivity (Air-Gap enforced).
-
-**Diagnostic Summary:**
-All system operating parameters for the requested unit are within normal operational envelopes (Green status). No critical alarms or cavitation harmonics were detected in the active telemetry stream.`;
-
-        toolCalls = [
-          {
-            id: `tc-gen-1`,
-            type: 'database_query',
-            title: 'Queried Postgres MCP: sensor_telemetry_5m',
-            subtitle: '48 records retrieved, status [NORMAL]',
-            status: 'SUCCESS',
-            timestamp: timeStr,
+          
+          buffer += decoder.decode(value, { stream: true });
+          let parts = buffer.split("\n");
+          buffer = parts.pop() || "";
+          
+          for (let part of parts) {
+              if (!part.startsWith("data: ")) continue;
+              const jsonStr = part.replace("data: ", "").trim();
+              if (!jsonStr) continue;
+              
+              try {
+                  const data = JSON.parse(jsonStr);
+                  if (data.type === "log") {
+                      logs += data.content;
+                      let progressPercent = 15;
+                      let progressSubStep = "Processing...";
+                      
+                      if (logs.includes("[1/3] PLANNER PHASE")) {
+                          progressPercent = 33;
+                          progressSubStep = "Phase 1: Planning";
+                      }
+                      if (logs.includes("[2/3] RESEARCHER PHASE")) {
+                          progressPercent = 66;
+                          progressSubStep = "Phase 2: Researching";
+                      }
+                      if (logs.includes("[3/3] WRITER PHASE")) {
+                          progressPercent = 90;
+                          progressSubStep = "Phase 3: Writing";
+                      }
+                      
+                      set((state) => ({
+                          messages: state.messages.map((m) => {
+                              if (m.id === agentMsgId) {
+                                  return { 
+                                      ...m, 
+                                      content: `**Thinking...**
+\`\`\`text
+${logs}
+\`\`\``,
+                                      progressPercent,
+                                      progressSubStep
+                                  };
+                              }
+                              return m;
+                          })
+                      }));
+                  } else if (data.type === "final") {
+                      finalAnswer = data.content;
+                  }
+              } catch (e) {
+                  console.error("SSE parse error on chunk", jsonStr);
+              }
           }
-        ];
       }
 
       set((state) => ({
-        messages: state.messages.map((m) => {
-          if (m.id === agentMsgId) {
-            return {
-              ...m,
-              content: responseText,
-              isStreaming: false,
-              progressPercent: undefined,
-              progressSubStep: undefined,
-              toolCalls: toolCalls,
-              approvalRequest: approvalReq,
-            };
-          }
-          return m;
-        })
+          messages: state.messages.map((m) => {
+              if (m.id === agentMsgId) {
+                  if (finalAnswer !== null) {
+                      return { ...m, isStreaming: false, content: finalAnswer, progressPercent: 100, progressSubStep: 'Complete' };
+                  } else {
+                      return { ...m, isStreaming: false, content: `**Error/Thinking...**
+\`\`\`text
+${logs}
+\`\`\``, progressPercent: 100, progressSubStep: 'Complete' };
+                  }
+              }
+              return m;
+          })
       }));
 
-      // Add to audit log
-      const auditAgentMsg: AuditLogEntry = {
-        id: `aud-${Date.now()}`,
-        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-        user: 'VERTEX AGENT',
-        action: 'MODEL_INFERENCE',
-        tool: 'QWEN3.5-9B',
-        details: `Generated autonomous diagnostic response (${toolCalls.length} tools executed)`,
-        status: 'SUCCESS',
-        ipAddress: '127.0.0.1 (LOCAL)',
-        severity: 'INFO',
-      };
-      set((state) => ({ auditLogs: [auditAgentMsg, ...state.auditLogs] }));
-
-    }, 2000);
+    } catch (e) {
+      set((state) => ({
+          messages: state.messages.map((m) => {
+              if (m.id === agentMsgId) {
+                  return { ...m, isStreaming: false, content: "Error connecting to backend.", progressPercent: 0, progressSubStep: 'Failed' };
+              }
+              return m;
+          })
+      }));
+    }
   },
 
   approveAction: (approvalId) => {

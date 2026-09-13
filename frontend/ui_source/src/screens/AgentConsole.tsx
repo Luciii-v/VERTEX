@@ -26,7 +26,7 @@ export const AgentConsole: React.FC = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); handleSend(); }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,7 +115,7 @@ export const AgentConsole: React.FC = () => {
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 bg-panel border-t border-border shrink-0">
+        <div className="p-4 bg-panel/40 backdrop-blur-lg border-t border-border/40 shrink-0 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
           {attachedFiles.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-2">
               {attachedFiles.map((file, i) => (
@@ -126,7 +126,7 @@ export const AgentConsole: React.FC = () => {
               ))}
             </div>
           )}
-          <div className="flex items-end gap-2 bg-base border border-border focus-within:border-textPrimary p-2 transition-all">
+          <div className="flex items-end gap-2 bg-base/60 backdrop-blur-md border border-border/50 rounded-xl focus-within:border-textPrimary/70 p-2 shadow-lg transition-all">
             <input type="file" ref={fileInputRef} onChange={handleFileChange} multiple className="hidden" />
             <button onClick={() => fileInputRef.current?.click()} className="p-2 text-textSecondary hover:text-textPrimary transition-colors shrink-0">
               <Paperclip className="w-5 h-5" />
@@ -137,7 +137,7 @@ export const AgentConsole: React.FC = () => {
             </button>
           </div>
           <div className="flex justify-between items-center text-[10px] text-textSecondary mt-2 px-1">
-            <span>Ctrl+Enter to send • Shift+Enter for line break</span>
+            <span>Enter to send • Shift+Enter for line break</span>
             <span className="text-textPrimary">SOVEREIGN AIR-GAP INFERENCE</span>
           </div>
         </div>
