@@ -41,7 +41,7 @@ check("model saw tool schemas", fn.state["seen"][0] >= 9, fn.state["seen"])
 # --- 2. approval gate blocks writes ---
 fn = scripted(tc("generate_docx",{"filename":"note.docx","title":"Approval Note","blocks":[{"type":"paragraph","text":"x"}]}),
               {"role":"assistant","content":"I need approval to write the file."})
-r = run("draft the approval note", chat_fn=fn, verbose=False)
+r = run("draft the approval note", chat_fn=fn, verbose=False, auto_approve=False)
 check("write blocked pending approval", len(r["pending_approvals"])==1, r["pending_approvals"])
 check("agent told to stop, not retry", r["tool_calls"][0]["envelope"]["status"]=="approval_required")
 

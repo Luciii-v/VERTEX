@@ -1,4 +1,4 @@
-export type ScreenRoute = 'dashboard' | 'agents' | 'documents' | 'reports' | 'audit' | 'settings' | 'profile';
+export type ScreenRoute = 'dashboard' | 'agents' | 'documents' | 'reports' | 'audit' | 'settings' | 'profile' | 'orchestrator';
 export type UserRole = 'OPERATOR' | 'ENGINEER' | 'ADMIN';
 export type AppTheme = 'dark' | 'light';
 

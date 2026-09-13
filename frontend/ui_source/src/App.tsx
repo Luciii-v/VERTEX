@@ -15,6 +15,7 @@ import { SplashScreen } from './components/SplashScreen';
 import { LoginScreen } from './components/LoginScreen';
 import { SelectWorkspace } from './components/SelectWorkspace';
 import { ProfileScreen } from './screens/ProfileScreen';
+import { TaskOrchestrator } from './screens/TaskOrchestrator';
 
 export const App: React.FC = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -135,6 +136,7 @@ export const App: React.FC = () => {
           {currentRoute === 'audit' && <AuditLog />}
           {currentRoute === 'settings' && <Settings />}
           {currentRoute === 'profile' && <ProfileScreen onSwitchAccount={handleLogout} />}
+          {currentRoute === 'orchestrator' && <TaskOrchestrator />}
         </main>
       </div>
 

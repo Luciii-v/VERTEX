@@ -319,6 +319,8 @@ export const useStore = create<AppState>((set, get) => ({
                       }));
                   } else if (data.type === "result") {
                       finalAnswer = data.content;
+                  } else if (data.type === "error") {
+                      finalAnswer = `**Error:** ${data.content}`;
                   }
               } catch (e) {
                   console.error("SSE parse error on chunk", jsonStr);

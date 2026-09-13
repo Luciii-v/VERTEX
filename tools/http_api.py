@@ -48,6 +48,15 @@ from .registry import (
     reject,
 )
 from .sandbox import preflight
+from .task_orchestrator import (
+    create_task,
+    run_task_with_orchestration,
+    get_task_status,
+    list_user_tasks,
+    load_checkpoint,
+    _lock,
+    _connect,
+)
 
 app = FastAPI(title="Sovereign Workbench - Tool Layer", version="0.1.0")
 
@@ -460,3 +469,88 @@ async def investigate(req: InvestigateRequest, x_user: str | None = Header(None)
                 continue
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+# ==============================================================================
+# TASK ORCHESTRATION ENDPOINTS
+# ==============================================================================
+
+class TaskCreateRequest(BaseModel):
+    objective: str
+
+
+class TaskResumeRequest(BaseModel):
+    task_id: str
+
+
+@app.post("/tasks")
+def create_task_endpoint(req: TaskCreateRequest, x_user: str | None = Header(None), x_role: str | None = Header(None)) -> dict:
+    """Create a new long-horizon task."""
+    user, role = _identity(x_user, x_role)
+    state = create_task(req.objective, user, role)
+    return {"task_id": state.task_id, "status": state.status, "plan": state.plan.to_dict()}
+
+
+@app.post("/tasks/resume")
+def resume_task_endpoint(req: TaskResumeRequest, x_user: str | None = Header(None), x_role: str | None = Header(None)):
+    """Resume a paused/failed task from checkpoint."""
+    user, role = _identity(x_user, x_role)
+    import threading
+    import queue
+    q = queue.Queue()
+
+    def target():
+        try:
+            res = run_task_with_orchestration(
+                "", user=user, role=role, auto_approve=True,
+                resume_task_id=req.task_id
+            )
+            q.put({"type": "result", "content": res})
+        except Exception as e:
+            q.put({"type": "error", "content": str(e)})
+        finally:
+            q.put(None)
+
+    threading.Thread(target=target).start()
+
+    async def event_generator():
+        while True:
+            try:
+                item = await asyncio.to_thread(q.get, timeout=0.5)
+                if item is None:
+                    break
+                yield f"data: {json.dumps(item)}\n\n"
+            except queue.Empty:
+                continue
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+@app.get("/tasks")
+def list_tasks_endpoint(x_user: str | None = Header(None), x_role: str | None = Header(None)) -> dict:
+    """List all tasks for the current user."""
+    user, role = _identity(x_user, x_role)
+    tasks = list_user_tasks(user)
+    return {"tasks": tasks}
+
+
+@app.get("/tasks/{task_id}")
+def get_task_status_endpoint(task_id: str, x_user: str | None = Header(None), x_role: str | None = Header(None)) -> dict:
+    """Get current status of a task."""
+    user, role = _identity(x_user, x_role)
+    status = get_task_status(task_id, user)
+    if not status:
+        raise HTTPException(404, "Task not found or access denied")
+    return status
+
+
+@app.get("/tasks/{task_id}/checkpoints")
+def list_task_checkpoints(task_id: str, x_user: str | None = Header(None), x_role: str | None = Header(None)) -> dict:
+    """List all checkpoints for a task."""
+    user, role = _identity(x_user, x_role)
+    with _lock, _connect() as conn:
+        rows = conn.execute(
+            "SELECT id, status, current_step, continuation_count, updated_at FROM task_checkpoints WHERE task_id = ? AND user = ? ORDER BY updated_at DESC",
+            (task_id, user)
+        ).fetchall()
+    return {"checkpoints": [dict(r) for r in rows]}

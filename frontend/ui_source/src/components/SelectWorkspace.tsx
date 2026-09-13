@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, MessageSquare, User, ArrowRight } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, User, ArrowRight, Activity } from 'lucide-react';
 import { ScreenRoute } from '../types';
 
 interface SelectWorkspaceProps {
@@ -42,6 +42,18 @@ const workspaces = [
     iconColor: 'text-violet-300',
     badge: 'USER SETTINGS',
     badgeColor: 'text-violet-300 border-violet-400/40 bg-violet-400/10'
+  },
+  {
+    route: 'orchestrator' as ScreenRoute,
+    icon: Activity,
+    title: 'Orchestrator',
+    subtitle: 'LONG-HORIZON AUTONOMY',
+    description: 'Create multi-step tasks, monitor agent progress, and view checkpoints.',
+    accent: 'border-emerald-400/40 hover:border-emerald-400/80',
+    iconBg: 'bg-emerald-400/10 border-emerald-400/30',
+    iconColor: 'text-emerald-300',
+    badge: 'AUTONOMOUS',
+    badgeColor: 'text-emerald-300 border-emerald-400/40 bg-emerald-400/10'
   }
 ];
 

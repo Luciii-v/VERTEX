@@ -1,6 +1,7 @@
 import React from 'react';
 import { 
   LayoutDashboard, 
+  Activity,
   Bot, 
   FileText, 
   BarChart, 
@@ -33,6 +34,7 @@ export const Sidebar: React.FC = () => {
 
   const navItems: { route: ScreenRoute; label: string; icon: any; shortcut: string }[] = [
     { route: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, shortcut: 'Ctrl+1' },
+    { route: 'orchestrator', label: 'Orchestrator', icon: Activity, shortcut: 'Ctrl+O' },
     { route: 'agents', label: 'Agent Console', icon: Bot, shortcut: 'Ctrl+2' },
     { route: 'documents', label: 'Documents', icon: FileText, shortcut: 'Ctrl+3' },
     { route: 'reports', label: 'Reports', icon: BarChart, shortcut: 'Ctrl+4' },
