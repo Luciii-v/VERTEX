@@ -92,7 +92,7 @@ function createWindow() {
     if (process.env.VITE_DEV_SERVER_URL)
         mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
     else
-        mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+        mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
     mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
         void recordSecurityEvent('RENDERER_LOAD_FAILURE', 'FAILED', `Renderer load failed (${errorCode}): ${errorDescription}.`);
     });
