@@ -196,6 +196,7 @@ export const useStore = create<AppState>((set, get) => ({
       messages: [...state.messages, agentMessagePlaceholder],
     }));
 
+
     try {
       let authUsername = get().userName;
       let authRole = "engineer";
@@ -209,6 +210,28 @@ export const useStore = create<AppState>((set, get) => ({
         }
       } catch (e) {}
 
+      // Upload attachments if any
+      if (attachments && attachments.length > 0) {
+        for (const file of attachments) {
+          const formData = new FormData();
+          formData.append('file', file);
+          try {
+            await fetch('http://127.0.0.1:8000/upload', {
+              method: 'POST',
+              headers: {
+                'X-User': authUsername,
+                'X-Role': authRole
+              },
+              body: formData
+            });
+          } catch (e) {
+            console.error('Failed to upload', e);
+          }
+        }
+      }
+
+
+
       const res = await fetch("http://127.0.0.1:8000/investigate", {
           method: "POST",
           headers: {
@@ -218,7 +241,23 @@ export const useStore = create<AppState>((set, get) => ({
           },
           body: JSON.stringify({ query: fullQuery })
       });
+      
+      if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          set((state) => ({
+              messages: state.messages.map((m) => m.id === agentMsgId ? {
+                  ...m,
+                  content: `**Error:** Model server unreachable or failed (HTTP ${res.status}).\n\n${errData.detail || ''}`,
+                  isStreaming: false,
+                  progressPercent: 100,
+                  progressSubStep: 'Failed'
+              } : m)
+          }));
+          return;
+      }
+      
       const reader = res.body!.getReader();
+
       const decoder = new TextDecoder("utf-8");
       let logs = "";
       let finalAnswer: string | null = null;
