@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useStore } from './store/useStore';
 import { TopBar } from './components/TopBar';
-import { Sidebar } from './components/Sidebar';
+import { AdminSidebar } from './components/AdminSidebar';
+import { EngineerSidebar } from './components/EngineerSidebar';
 import { Toast } from './components/Toast';
 
 // Screens
-import { Dashboard } from './screens/Dashboard';
+import { AdminDashboard } from './screens/AdminDashboard';
+import { EngineerDashboard } from './screens/EngineerDashboard';
 import { AgentConsole } from './screens/AgentConsole';
 import { DocumentLibrary } from './screens/DocumentLibrary';
 import { ReportGenerator } from './screens/ReportGenerator';
@@ -23,6 +25,7 @@ export const App: React.FC = () => {
   const [startupError, setStartupError] = useState<string | null>(null);
   const [showWorkspaceSelect, setShowWorkspaceSelect] = useState(true);
   const { 
+    userRole,
     currentRoute, 
     setRoute, 
     settings, 
@@ -125,11 +128,11 @@ export const App: React.FC = () => {
       {/* Main Container */}
       <div className="flex-1 flex overflow-hidden relative">
         {/* Left Sidebar */}
-        <Sidebar />
+        {userRole?.toLowerCase() === 'admin' ? <AdminSidebar /> : <EngineerSidebar />}
 
         {/* Dynamic Route Screen Content */}
         <main className="app-background flex-1 overflow-hidden relative">
-          {currentRoute === 'dashboard' && <Dashboard />}
+          {currentRoute === 'dashboard' && (userRole?.toLowerCase() === 'admin' ? <AdminDashboard /> : <EngineerDashboard />)}
           {currentRoute === 'agents' && <AgentConsole />}
           {currentRoute === 'documents' && <DocumentLibrary />}
           {currentRoute === 'reports' && <ReportGenerator />}

@@ -4,7 +4,7 @@ import { useStore } from '../store/useStore';
 import { GlassPanel } from '../components/GlassPanel';
 import { StatusBadge } from '../components/StatusBadge';
 
-export const Dashboard: React.FC = () => {
+export const AdminDashboard: React.FC = () => {
   const { 
     userRole, metrics, setRoute, auditLogs, addToast, clearChat, 
     isLeftSidebarOpen, toggleLeftSidebar, 
@@ -158,7 +158,6 @@ export const Dashboard: React.FC = () => {
             </div>
           </button>
 
-          {(userRole && userRole.toLowerCase() === 'admin') && (
           <button
             onClick={() => setRoute('documents')}
             className="p-5 cli-panel hover:bg-base border border-border hover:border-textPrimary text-left transition-all group flex flex-col justify-between h-36 active:scale-[0.98]"
@@ -174,7 +173,6 @@ export const Dashboard: React.FC = () => {
               <p className="text-xs text-textSecondary mt-0.5">Ingest P&ID drawings, SOP manuals (PDF/DWG)</p>
             </div>
           </button>
-          )}
 
           <button
             onClick={() => setRoute('reports')}

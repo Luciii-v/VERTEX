@@ -22,7 +22,7 @@ import {
 import { useStore } from '../store/useStore';
 import { ScreenRoute } from '../types';
 
-export const Sidebar: React.FC = () => {
+export const AdminSidebar: React.FC = () => {
   const { 
     userRole,
     currentRoute, 
@@ -37,7 +37,7 @@ export const Sidebar: React.FC = () => {
     { route: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, shortcut: 'Ctrl+1' },
     { route: 'orchestrator', label: 'Orchestrator', icon: Activity, shortcut: 'Ctrl+O' },
     { route: 'agents', label: 'Agent Console', icon: Bot, shortcut: 'Ctrl+2' },
-    ...((userRole && userRole.toLowerCase() === 'admin') ? [{ route: 'documents' as ScreenRoute, label: 'Documents', icon: FileText, shortcut: 'Ctrl+3' }] : []),
+    { route: 'documents', label: 'Documents', icon: FileText, shortcut: 'Ctrl+3' },
     { route: 'reports', label: 'Reports', icon: BarChart, shortcut: 'Ctrl+4' },
     { route: 'audit', label: 'Audit Trail', icon: ShieldCheck, shortcut: 'Ctrl+5' },
     { route: 'settings', label: 'Settings', icon: Settings, shortcut: 'Ctrl+6' },
