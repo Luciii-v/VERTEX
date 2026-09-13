@@ -420,10 +420,23 @@ async def investigate(req: InvestigateRequest, x_user: str | None = Header(None)
         old_stdout = sys.stdout
         sys.stdout = QueueIO()
         try:
-            res = run_agent(req.query, user=user, role=role, verbose=True, auto_approve=True)
-            # Extract plain text answer — run() returns a dict
-            answer = res.get("answer", "") if isinstance(res, dict) else str(res)
-            pending = res.get("pending_approvals", []) if isinstance(res, dict) else []
+            if req.query.strip().lower().startswith("orchestrate:"):
+                import tools.orchestrator as orch
+                # Force rich to use our QueueIO
+                from rich.console import Console
+                orch.console = Console(file=sys.stdout, force_terminal=False)
+                
+                clean_query = req.query.split(":", 1)[1].strip()
+                res = orch.run_orchestrator(clean_query, verbose=True)
+                
+                final_res = res.get("final_result", {})
+                answer = final_res.get("answer", "") if isinstance(final_res, dict) else str(final_res)
+                pending = final_res.get("pending_approvals", []) if isinstance(final_res, dict) else []
+            else:
+                res = run_agent(req.query, user=user, role=role, verbose=True, auto_approve=True)
+                answer = res.get("answer", "") if isinstance(res, dict) else str(res)
+                pending = res.get("pending_approvals", []) if isinstance(res, dict) else []
+            
             q.put({"type": "result", "content": answer})
             if pending:
                 q.put({"type": "approval_required", "content": pending})
