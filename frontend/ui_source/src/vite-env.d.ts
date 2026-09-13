@@ -8,5 +8,12 @@ interface Window {
     login: (username: string, password: string) => Promise<{ ok: boolean; message?: string; username?: string }>;
     logout: () => Promise<{ ok: boolean }>;
     onSecurityAudit: (callback: (entry: unknown) => void) => () => void;
+    
+    // User Management
+    usersList: () => Promise<{id: string; username: string; role: string; created_at: number; updated_at: number}[]>;
+    usersAdd: (username: string, password: string, role: string) => Promise<{ ok: boolean; message?: string }>;
+    usersDelete: (id: string) => Promise<{ ok: boolean; message?: string }>;
+    usersSetRole: (id: string, role: string) => Promise<{ ok: boolean; message?: string }>;
+    usersResetPassword: (id: string, newPassword: string) => Promise<{ ok: boolean; message?: string }>;
   };
 }

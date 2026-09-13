@@ -79,63 +79,6 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ onPreviewDocument })
                 </select>
               </div>
 
-              <div>
-                <label className="text-[10px] text-textSecondary mb-1 block uppercase">External API Key (Fallback)</label>
-                <div className="flex gap-2">
-                  <input 
-                    type="password" 
-                    placeholder="sk-..." 
-                    className="flex-1 bg-panel border border-border text-textPrimary p-2 focus:outline-none focus:border-textPrimary placeholder:text-textSecondary/50"
-                  />
-                  <button className="cli-button px-3 border border-border flex items-center justify-center">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 2. DOCUMENT UPLOAD / CONTEXT INGESTION */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold text-textSecondary uppercase tracking-wider flex items-center gap-1.5">
-              <UploadCloud className="w-3.5 h-3.5" /> INGEST CONTEXT
-            </h4>
-            
-            <button 
-              onClick={() => addToast('UPLOAD TRIGGERED', 'Opening local file system dialog...', 'info')}
-              className="w-full cli-button p-4 border border-dashed border-textSecondary hover:border-textPrimary flex flex-col items-center justify-center gap-2 group transition-all"
-            >
-              <UploadCloud className="w-6 h-6 text-textSecondary group-hover:text-textPrimary transition-colors" />
-              <div className="text-center">
-                <span className="block text-xs font-bold">UPLOAD PDF / P&ID / DWG</span>
-                <span className="block text-[10px] text-textSecondary mt-0.5">Drag & drop or click to browse</span>
-              </div>
-            </button>
-          </div>
-
-          {/* 3. PERMIT BAR / CLEARANCE HIERARCHY */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold text-textSecondary uppercase tracking-wider flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5" /> CLEARANCE HIERARCHY
-            </h4>
-            
-            <div className="p-3 bg-panel border border-border space-y-3">
-              <div className="flex justify-between items-center text-[10px] uppercase font-bold">
-                <span className="text-textSecondary">Operator</span>
-                <span className="text-textPrimary">Engineer</span>
-                <span className="text-accent">Admin</span>
-              </div>
-              
-              <div className="relative w-full h-2 bg-base border border-border rounded-full overflow-hidden">
-                <div className="absolute top-0 left-0 h-full bg-textPrimary w-2/3" />
-                <div className="absolute top-0 left-1/3 w-px h-full bg-base" />
-                <div className="absolute top-0 left-2/3 w-px h-full bg-base" />
-              </div>
-              
-              <div className="text-[10px] text-textSecondary leading-tight flex items-start gap-1.5">
-                <AlertTriangle className="w-3 h-3 shrink-0 text-textPrimary" />
-                <p>Current clearance: <span className="text-textPrimary font-bold">ENGINEER</span>. Agent will auto-halt on WRITE actions requiring ADMIN permit.</p>
-              </div>
             </div>
           </div>
 
