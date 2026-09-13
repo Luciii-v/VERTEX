@@ -18,6 +18,7 @@
     --color-text-secondary: #737373;
     --color-accent: #000000;
     --color-error: #ef4444;
+    --bg-gradient: linear-gradient(135deg, #f7f7f7 0%, #e5e5e5 100%);
   }
 
   .dark {
@@ -30,13 +31,14 @@
     --color-text-secondary: #aeb7c4;
     --color-accent: #ffffff;
     --color-error: #ef4444;
+    --bg-gradient: linear-gradient(135deg, #f7f7f7 0%, #e5e5e5 100%);
   }
 
   body {
     background-color: var(--color-base);
     color: var(--color-text-primary);
     font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
-    background-image: linear-gradient(135deg, #111b2b 0%, #070b12 48%, #030508 100%);
+    background-image: var(--bg-gradient);
   }
 }
 
@@ -45,7 +47,7 @@
   background-image:
     radial-gradient(ellipse at 12% -20%, rgba(34, 67, 104, 0.46), transparent 48%),
     radial-gradient(ellipse at 105% 112%, rgba(15, 39, 66, 0.38), transparent 52%),
-    linear-gradient(135deg, #111b2b 0%, #070b12 48%, #030508 100%);
+    var(--bg-gradient);
 }
 
 /* The original UI used 9–11px utility labels. Keep their visual role, but make

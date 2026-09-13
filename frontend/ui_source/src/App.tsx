@@ -28,7 +28,8 @@ export const App: React.FC = () => {
     approveAction,
     denyAction,
     addToast,
-    appendAuditLog
+    appendAuditLog,
+    setUserName
   } = useStore();
 
   useEffect(() => {
@@ -101,7 +102,7 @@ export const App: React.FC = () => {
   }
 
   if (!authState.authenticated) {
-    return <LoginScreen needsSetup={authState.needsSetup} onAuthenticated={() => setAuthState({ loading: false, authenticated: true, needsSetup: false })} />;
+    return <LoginScreen needsSetup={authState.needsSetup} onAuthenticated={(username) => { setUserName(username); setAuthState({ loading: false, authenticated: true, needsSetup: false }); }} />;
   }
 
   return (
