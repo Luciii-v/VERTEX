@@ -148,9 +148,7 @@ export const useStore = create<AppState>((set, get) => ({
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const userMsgId = `msg-user-${Date.now()}`;
     const attachmentNote = attachments && attachments.length > 0
-      ? `
-
-*[Attached: ${attachments.map(f => f.name).join(', ')}]*`
+      ? `\n\n*[Attached: ${attachments.map(f => f.name).join(', ')}]*`
       : '';
     
     const fullQuery = content + attachmentNote;
@@ -162,8 +160,21 @@ export const useStore = create<AppState>((set, get) => ({
       timestamp: timeStr,
     };
 
+    const auditUserMsg: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      user: get().userName,
+      action: 'PROMPT_SUBMITTED',
+      tool: 'Agent Console',
+      details: `Submitted prompt: "${content.substring(0, 45)}..."`,
+      status: 'SUCCESS',
+      ipAddress: '127.0.0.1 (LOCAL)',
+      severity: 'INFO',
+    };
+
     set((state) => ({
       messages: [...state.messages, userMessage],
+      auditLogs: [auditUserMsg, ...state.auditLogs]
     }));
 
     const agentMsgId = `msg-agent-${Date.now()}`;
@@ -203,7 +214,7 @@ export const useStore = create<AppState>((set, get) => ({
               if (buffer.trim()) {
                   try {
                       const parsed = JSON.parse(buffer.replace(/^data: /, "").trim());
-                      if (parsed.type === "final") finalAnswer = parsed.content;
+                      if (parsed.type === "result") finalAnswer = parsed.content;
                   } catch (e) {}
               }
               break;
@@ -243,10 +254,7 @@ export const useStore = create<AppState>((set, get) => ({
                               if (m.id === agentMsgId) {
                                   return { 
                                       ...m, 
-                                      content: `**Thinking...**
-\`\`\`text
-${logs}
-\`\`\``,
+                                      content: `**Thinking...**\n\`\`\`text\n${logs}\n\`\`\``,
                                       progressPercent,
                                       progressSubStep
                                   };
@@ -254,7 +262,7 @@ ${logs}
                               return m;
                           })
                       }));
-                  } else if (data.type === "final") {
+                  } else if (data.type === "result") {
                       finalAnswer = data.content;
                   }
               } catch (e) {
@@ -269,10 +277,7 @@ ${logs}
                   if (finalAnswer !== null) {
                       return { ...m, isStreaming: false, content: finalAnswer, progressPercent: 100, progressSubStep: 'Complete' };
                   } else {
-                      return { ...m, isStreaming: false, content: `**Error/Thinking...**
-\`\`\`text
-${logs}
-\`\`\``, progressPercent: 100, progressSubStep: 'Complete' };
+                      return { ...m, isStreaming: false, content: `**Error/Thinking...**\n\`\`\`text\n${logs}\n\`\`\``, progressPercent: 100, progressSubStep: 'Complete' };
                   }
               }
               return m;

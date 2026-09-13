@@ -26,7 +26,7 @@ export const AgentConsole: React.FC = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+    if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); handleSend(); }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,7 +137,7 @@ export const AgentConsole: React.FC = () => {
             </button>
           </div>
           <div className="flex justify-between items-center text-[10px] text-textSecondary mt-2 px-1">
-            <span>Enter to send • Shift+Enter for line break</span>
+            <span>Ctrl+Enter to send • Shift+Enter for line break</span>
             <span className="text-textPrimary">SOVEREIGN AIR-GAP INFERENCE</span>
           </div>
         </div>
