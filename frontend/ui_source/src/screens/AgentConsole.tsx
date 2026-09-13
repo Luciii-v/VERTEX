@@ -26,7 +26,7 @@ export const AgentConsole: React.FC = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); handleSend(); }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +55,7 @@ export const AgentConsole: React.FC = () => {
         </div>
 
         {/* Chat History */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-40">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
               <div className="w-12 h-12 border border-border bg-panel flex items-center justify-center">
@@ -115,7 +115,7 @@ export const AgentConsole: React.FC = () => {
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 bg-white/60 dark:bg-[#111823]/60 backdrop-blur-xl border-t border-border/40 shrink-0 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
+        <div className="absolute bottom-0 left-0 w-full p-4 bg-white/60 dark:bg-[#111823]/60 backdrop-blur-2xl border-t border-border/40 shrink-0 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
           {attachedFiles.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-2">
               {attachedFiles.map((file, i) => (
@@ -137,7 +137,7 @@ export const AgentConsole: React.FC = () => {
             </button>
           </div>
           <div className="flex justify-between items-center text-[10px] text-textSecondary mt-2 px-1">
-            <span>Ctrl+Enter to send • Shift+Enter for line break</span>
+            <span>Enter to send • Shift+Enter for line break</span>
             <span className="text-textPrimary">SOVEREIGN AIR-GAP INFERENCE</span>
           </div>
         </div>

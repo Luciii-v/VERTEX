@@ -193,12 +193,24 @@ export const useStore = create<AppState>((set, get) => ({
     }));
 
     try {
+      let authUsername = get().userName;
+      let authRole = "engineer";
+      try {
+        if (window.electronAPI) {
+          const status = (await window.electronAPI.getAuthStatus()) as any;
+          if (status.authenticated) {
+            authUsername = status.username || "operator";
+            authRole = status.role;
+          }
+        }
+      } catch (e) {}
+
       const res = await fetch("http://127.0.0.1:8000/investigate", {
           method: "POST",
           headers: {
               "Content-Type": "application/json",
-              "X-User": get().userName,
-              "X-Role": "engineer"
+              "X-User": authUsername,
+              "X-Role": authRole
           },
           body: JSON.stringify({ query: fullQuery })
       });
