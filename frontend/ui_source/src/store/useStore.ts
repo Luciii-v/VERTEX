@@ -52,6 +52,7 @@ interface AppState {
   // Actions
   setRoute: (route: ScreenRoute) => void;
   setUserName: (name: string) => void;
+  setUserRole: (role: string) => void;
   toggleLeftSidebar: () => void;
   toggleRightSidebar: () => void;
   toggleMcpTool: (id: string) => void;
@@ -104,6 +105,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   setRoute: (route) => set({ currentRoute: route }),
   setUserName: (name) => set({ userName: name }),
+  setUserRole: (role) => set({ userRole: role as any }),
   toggleLeftSidebar: () => set((state) => ({ isLeftSidebarOpen: !state.isLeftSidebarOpen })),
   toggleRightSidebar: () => set((state) => ({ isRightSidebarOpen: !state.isRightSidebarOpen })),
   toggleTheme: () => set((state) => ({ settings: { ...state.settings, theme: state.settings.theme === 'dark' ? 'light' : 'dark' } })),

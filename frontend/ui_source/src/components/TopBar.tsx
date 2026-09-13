@@ -10,11 +10,11 @@ interface TopBarProps {
 export const TopBar: React.FC<TopBarProps> = ({ onLogout }) => {
   const { 
     currentRoute, 
-    setRoute, 
     userName, 
     userRole, 
     settings, 
     updateSettings,
+    setRoute,
     toggleLeftSidebar,
     toggleTheme,
     addToast
@@ -96,13 +96,13 @@ export const TopBar: React.FC<TopBarProps> = ({ onLogout }) => {
         </button>
 
         {/* User Role Card */}
-        <div className="flex items-center gap-2 px-3 py-1.5 cli-panel rounded-lg text-xs">
+        <button onClick={() => setRoute("profile")} className="flex items-center gap-2 px-3 py-1.5 cli-button rounded-lg text-xs cursor-pointer">
           <UserCheck className="w-4 h-4 text-textPrimary" />
           <div>
             <span className="text-textPrimary font-bold block text-[11px] leading-tight">{userName}</span>
             <span className="text-textSecondary text-[9px] block leading-tight">ROLE: {userRole}</span>
           </div>
-        </div>
+        </button>
 
         {/* Settings Trigger */}
         <button

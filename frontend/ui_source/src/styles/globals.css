@@ -31,7 +31,7 @@
     --color-text-secondary: #aeb7c4;
     --color-accent: #ffffff;
     --color-error: #ef4444;
-    --bg-gradient: linear-gradient(135deg, #f7f7f7 0%, #e5e5e5 100%);
+    --bg-gradient: linear-gradient(135deg, #111b2b 0%, #070b12 48%, #030508 100%);
   }
 
   body {

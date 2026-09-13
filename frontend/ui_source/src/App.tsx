@@ -13,11 +13,14 @@ import { AuditLog } from './screens/AuditLog';
 import { Settings } from './screens/Settings';
 import { SplashScreen } from './components/SplashScreen';
 import { LoginScreen } from './components/LoginScreen';
+import { SelectWorkspace } from './components/SelectWorkspace';
+import { ProfileScreen } from './screens/ProfileScreen';
 
 export const App: React.FC = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [authState, setAuthState] = useState<{ loading: boolean; authenticated: boolean; needsSetup: boolean }>({ loading: true, authenticated: false, needsSetup: false });
   const [startupError, setStartupError] = useState<string | null>(null);
+  const [showWorkspaceSelect, setShowWorkspaceSelect] = useState(true);
   const { 
     currentRoute, 
     setRoute, 
@@ -29,7 +32,8 @@ export const App: React.FC = () => {
     denyAction,
     addToast,
     appendAuditLog,
-    setUserName
+    setUserName,
+    setUserRole
   } = useStore();
 
   useEffect(() => {
@@ -56,6 +60,7 @@ export const App: React.FC = () => {
     await window.electronAPI.logout();
     const status = await window.electronAPI.getAuthStatus();
     setAuthState({ loading: false, authenticated: false, needsSetup: status.needsSetup });
+    setShowWorkspaceSelect(true);
   };
 
   // Global Keyboard Shortcuts
@@ -102,7 +107,11 @@ export const App: React.FC = () => {
   }
 
   if (!authState.authenticated) {
-    return <LoginScreen needsSetup={authState.needsSetup} onAuthenticated={(username) => { setUserName(username); setAuthState({ loading: false, authenticated: true, needsSetup: false }); }} />;
+    return <LoginScreen needsSetup={authState.needsSetup} onAuthenticated={(username, role) => { setUserName(username); if(role) setUserRole(role); setAuthState({ loading: false, authenticated: true, needsSetup: false }); setShowWorkspaceSelect(true); }} />;
+  }
+
+  if (authState.authenticated && showWorkspaceSelect) {
+    return <SelectWorkspace onSelect={(route) => { setRoute(route); setShowWorkspaceSelect(false); }} />;
   }
 
   return (
@@ -125,6 +134,7 @@ export const App: React.FC = () => {
           {currentRoute === 'reports' && <ReportGenerator />}
           {currentRoute === 'audit' && <AuditLog />}
           {currentRoute === 'settings' && <Settings />}
+          {currentRoute === 'profile' && <ProfileScreen onSwitchAccount={handleLogout} />}
         </main>
       </div>
 

@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from 'react';
 import { AlertCircle, ArrowRight, LockKeyhole, ShieldCheck } from 'lucide-react';
 
-interface LoginScreenProps { needsSetup: boolean; onAuthenticated: (username: string) => void; }
+interface LoginScreenProps { needsSetup: boolean; onAuthenticated: (username: string, role?: string) => void; }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ needsSetup, onAuthenticated }) => {
   const [username, setUsername] = useState('');
@@ -17,7 +17,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ needsSetup, onAuthenti
     setSubmitting(false);
     if (!result.ok) return setMessage(result.message || 'We could not sign you in.');
     if (needsSetup) { setPassword(''); setConfirmPassword(''); return setMessage('Account created. Sign in with your new credentials.'); }
-    onAuthenticated(username);
+    onAuthenticated(username, (result as any).role);
   };
 
   return <main className="app-background min-h-screen w-screen p-6 text-textPrimary md:p-10">
