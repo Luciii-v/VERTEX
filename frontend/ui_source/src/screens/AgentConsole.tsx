@@ -115,7 +115,7 @@ export const AgentConsole: React.FC = () => {
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 bg-panel/40 backdrop-blur-lg border-t border-border/40 shrink-0 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
+        <div className="p-4 bg-white/60 dark:bg-[#111823]/60 backdrop-blur-xl border-t border-border/40 shrink-0 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
           {attachedFiles.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-2">
               {attachedFiles.map((file, i) => (
@@ -126,7 +126,7 @@ export const AgentConsole: React.FC = () => {
               ))}
             </div>
           )}
-          <div className="flex items-end gap-2 bg-base/60 backdrop-blur-md border border-border/50 rounded-xl focus-within:border-textPrimary/70 p-2 shadow-lg transition-all">
+          <div className="flex items-end gap-2 bg-[#f7f7f7]/60 dark:bg-[#070b12]/60 backdrop-blur-xl border border-border/50 rounded-xl focus-within:border-textPrimary/70 p-2 shadow-lg transition-all">
             <input type="file" ref={fileInputRef} onChange={handleFileChange} multiple className="hidden" />
             <button onClick={() => fileInputRef.current?.click()} className="p-2 text-textSecondary hover:text-textPrimary transition-colors shrink-0">
               <Paperclip className="w-5 h-5" />
