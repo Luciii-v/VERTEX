@@ -1,0 +1,17 @@
+appId: com.vertex.sovereign.workbench
+productName: Vertex
+directories:
+  output: release
+files:
+  - dist/**/*
+  - main.js
+  - preload.cjs
+  - package.json
+win:
+  target: nsis
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Vertex
