@@ -32,13 +32,18 @@ const ensureLocalBackend = async () => {
     const projectRoot = existsSync(path.join(packagedRoot, '.venv', 'bin', 'python'))
         ? packagedRoot
         : path.resolve(__dirname, '../..');
-    const python = path.join(projectRoot, '.venv', 'bin', 'python');
+    const python = process.platform === 'win32' ? path.join(projectRoot, '.venv', 'Scripts', 'python.exe') : path.join(projectRoot, '.venv', 'bin', 'python');
     localBackend = spawn(python, [
         '-m', 'uvicorn', 'tools.http_api:app', '--host', '127.0.0.1', '--port', '8000',
     ], {
         cwd: projectRoot,
         stdio: 'ignore',
     });
+    if (localBackend) {
+        localBackend.on('error', (err) => {
+            console.error('Failed to start python backend:', err);
+        });
+    }
     // The sign-in screen must reflect the real database, not a transient
     // connection failure while the local-only service starts.
     for (let attempt = 0; attempt < 20; attempt += 1) {
