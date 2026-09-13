@@ -5,12 +5,15 @@
   "description": "Vertex Sovereign On-Premise Agentic AI Workbench",
   "author": "Vertex",
   "type": "module",
-  "main": "dist-electron/main.js",
+  "main": "main.js",
   "dependencies": {
     "electron": "^44.3.0",
     "lucide-react": "^0.344.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "zustand": "^4.5.2"
+  },
+  "scripts": {
+    "start": "electron ."
   }
 }
