@@ -81,18 +81,19 @@ def route(prompt: str, *, has_image: bool = False,
     text = (prompt or "").lower()
     reg = load_registry()
 
+    # Only route to the heavy vision model if the user explicitly attached an image.
+    # Otherwise, let the general text model handle it (it can call the ocr_image tool!).
     if has_image or any(h in text for h in VISION_HINTS):
-        m = by_role("general")
+        m = by_role("vision")
         return {
             "model": m["id"], "role": "vision",
-            "reason": "Visual input detected -> multimodal model (same model "
-                      "handles the reasoning, so no swap needed)",
+            "reason": "Visual input or diagram prompt detected -> multimodal vision model",
             "num_ctx": m["context_default"],
         }
 
     if any(h in text for h in CODE_HINTS):
         m = by_role("code")
-        model_id = reg["aliases"]["code_light"] if light else m["id"]
+        model_id = reg.get("aliases", {}).get("code_light", m["id"]) if light else m["id"]
         return {
             "model": model_id, "role": "code",
             "reason": "Programming or computation task -> code-specialised model",

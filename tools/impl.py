@@ -158,6 +158,73 @@ def _read_pdf(src: Path, max_pages: int) -> dict:
     }
 
 
+# --------------------------------------------------------------------------
+# 2. Industrial Context Graph (PostgreSQL / SQLite)
+# --------------------------------------------------------------------------
+
+@tool(
+    description=(
+        "Query the Industrial Context Graph database to find relationships between "
+        "Assets, Locations, Work Orders, and SOPs. Use this to discover which "
+        "documents govern an equipment tag, or where an asset is located."
+    ),
+    schema={
+        "type": "object",
+        "properties": {
+            "entity_id": {"type": "string", "description": "The exact ID (e.g., 'P-101', 'SOP-MECH-018'). If empty, returns all entities."},
+        }
+    },
+    tags=("context_graph", "database"),
+)
+def query_context_graph(entity_id: str = "") -> dict:
+    import sqlite3
+    db_path = DATA / "context_graph.db"
+    if not db_path.exists():
+        raise ToolError("Context graph DB not initialized.")
+        
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    if not entity_id:
+        # Return summary of all entities if no ID provided
+        rows = cursor.execute("SELECT id, type, name FROM entities").fetchall()
+        conn.close()
+        return {"all_entities": [dict(r) for r in rows]}
+        
+    # Get exact entity details
+    ent = cursor.execute("SELECT * FROM entities WHERE id = ?", (entity_id,)).fetchone()
+    if not ent:
+        conn.close()
+        return {"error": f"Entity '{entity_id}' not found in the Context Graph."}
+        
+    # Get inbound and outbound relationships
+    outbound = cursor.execute('''
+        SELECT relation_type, target_id, e.name as target_name, e.type as target_type
+        FROM relationships r
+        JOIN entities e ON r.target_id = e.id
+        WHERE source_id = ?
+    ''', (entity_id,)).fetchall()
+    
+    inbound = cursor.execute('''
+        SELECT relation_type, source_id, e.name as source_name, e.type as source_type
+        FROM relationships r
+        JOIN entities e ON r.source_id = e.id
+        WHERE target_id = ?
+    ''', (entity_id,)).fetchall()
+    
+    conn.close()
+    return {
+        "entity": dict(ent),
+        "relationships_outbound": [dict(r) for r in outbound],
+        "relationships_inbound": [dict(r) for r in inbound],
+    }
+
+
+# --------------------------------------------------------------------------
+# 3. Parsers
+# --------------------------------------------------------------------------
+
 def _read_docx(src: Path) -> str:
     try:
         import docx
@@ -215,14 +282,23 @@ def ocr_image(path: str, lang: str = "en") -> dict:
     try:
         _PADDLE
     except NameError:
-        _PADDLE = PaddleOCR(use_angle_cls=True, lang=lang, show_log=False)
+        import logging
+        logging.getLogger('ppocr').setLevel(logging.ERROR)
+        _PADDLE = PaddleOCR(use_angle_cls=True, lang=lang)
 
-    raw = _PADDLE.ocr(str(src), cls=True) or []
+    raw = _PADDLE.ocr(str(src)) or []
     blocks = []
     for page in raw:
-        for box, (text, conf) in (page or []):
-            blocks.append({"text": text, "confidence": round(float(conf), 3),
-                           "box": [[round(x), round(y)] for x, y in box]})
+        if not page:
+            continue
+        if isinstance(page, dict) and "rec_texts" in page:
+            for box, text, conf in zip(page.get("rec_polys", []), page.get("rec_texts", []), page.get("rec_scores", [])):
+                blocks.append({"text": text, "confidence": round(float(conf), 3),
+                               "box": [[round(float(x)), round(float(y))] for x, y in box]})
+        else:
+            for box, (text, conf) in page:
+                blocks.append({"text": text, "confidence": round(float(conf), 3),
+                               "box": [[round(float(x)), round(float(y))] for x, y in box]})
     return {
         "engine": "paddleocr",
         "text": "\n".join(b["text"] for b in blocks),
@@ -392,17 +468,47 @@ def sandbox_status() -> dict:
 def generate_docx(filename: str, title: str, blocks: list[dict]) -> dict:
     try:
         import docx
+        import json
     except ImportError as exc:
         raise ToolError("python-docx not installed. `pip install python-docx`") from exc
 
+    # If the LLM passes a single string inside a list instead of parsing it
+    if isinstance(blocks, list) and len(blocks) == 1 and isinstance(blocks[0], str):
+        try:
+            blocks = json.loads(blocks[0])
+        except json.JSONDecodeError:
+            pass
+            
+    if isinstance(blocks, str):
+        try:
+            blocks = json.loads(blocks)
+        except json.JSONDecodeError:
+            blocks = [{"type": "paragraph", "text": blocks}]
+            
+    if not isinstance(blocks, list):
+        blocks = [blocks]
+
     doc = docx.Document()
+    
+    # Make it beautiful & modern!
+    style = doc.styles['Normal']
+    font = style.font
+    font.name = 'Arial'
+    
     doc.add_heading(title, level=0)
     for b in blocks:
+        if isinstance(b, str):
+            doc.add_paragraph(b)
+            continue
+        
         kind = b.get("type")
         if kind == "heading":
             doc.add_heading(b.get("text", ""), level=min(int(b.get("level", 1)), 4))
         elif kind == "paragraph":
-            doc.add_paragraph(b.get("text", ""))
+            text = b.get("text")
+            if not text and "items" in b:
+                text = "\n".join(str(x) for x in b["items"])
+            doc.add_paragraph(text or "")
         elif kind == "bullets":
             for item in b.get("items", []):
                 doc.add_paragraph(str(item), style="List Bullet")

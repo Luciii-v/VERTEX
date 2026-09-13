@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.env
+
+# Node
+node_modules/
+dist/
+dist-electron/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+workspace_data/cache/
+workspace_data/chroma/
+workspace_data/kb/
+workspace_data/outputs/
+workspace_data/*.db-shm
+workspace_data/*.db-wal
+app.asar

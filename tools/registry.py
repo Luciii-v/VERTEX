@@ -20,7 +20,7 @@ from typing import Any, Callable
 
 from .audit import log_event
 
-ROLES = ("operator", "engineer", "admin")
+ROLES = ("operator", "engineer", "admin", "approver", "employee")
 
 
 class ToolError(Exception):
@@ -115,12 +115,19 @@ def list_tools() -> list[dict]:
     ]
 
 
-def request_approval(name: str, arguments: dict, user: str) -> str:
+def request_approval(name: str, arguments: dict, user: str, role: str) -> str:
+    """Store who requested a protected action so it runs with their rights.
+
+    An approver authorizes work; they do not inherit or replace the engineer's
+    tool permissions.  This keeps the Admin -> Approver -> Engineer workflow
+    auditable and prevents an approval from accidentally escalating access.
+    """
     request_id = uuid.uuid4().hex[:12]
     _PENDING[request_id] = {
         "tool": name,
         "arguments": arguments,
         "user": user,
+        "role": role,
         "requested_at": time.time(),
     }
     return request_id
@@ -130,14 +137,14 @@ def pending_approvals() -> list[dict]:
     return [{"request_id": k, **v} for k, v in _PENDING.items()]
 
 
-def approve(request_id: str, approver: str) -> dict:
+def approve(request_id: str, approver: str, approver_role: str = "admin") -> dict:
     rec = _PENDING.pop(request_id, None)
     if rec is None:
         raise ToolError(f"unknown approval request: {request_id}")
     _APPROVED.add(request_id)
     log_event(
         user=approver,
-        role="admin",
+        role=approver_role,
         event="approval_granted",
         tool=rec["tool"],
         arguments=rec["arguments"],
@@ -146,13 +153,13 @@ def approve(request_id: str, approver: str) -> dict:
     return rec
 
 
-def reject(request_id: str, approver: str) -> dict:
+def reject(request_id: str, approver: str, approver_role: str = "admin") -> dict:
     rec = _PENDING.pop(request_id, None)
     if rec is None:
         raise ToolError(f"unknown approval request: {request_id}")
     log_event(
         user=approver,
-        role="admin",
+        role=approver_role,
         event="approval_rejected",
         tool=rec["tool"],
         arguments=rec["arguments"],
@@ -191,7 +198,7 @@ def call_tool(
 
     if t.mutating:
         if approval_token is None or approval_token not in _APPROVED:
-            rid = request_approval(name, arguments, user)
+            rid = request_approval(name, arguments, user, role)
             log_event(
                 user=user, role=role, event="approval_requested",
                 tool=name, arguments=arguments, result_summary=rid,

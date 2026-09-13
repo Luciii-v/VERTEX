@@ -141,7 +141,10 @@ def _run_subprocess(workdir, entry, language, stdin, timeout):
         "HOME": str(workdir),
         "TMPDIR": str(workdir),
         "PYTHONDONTWRITEBYTECODE": "1",
-        # deliberately no proxy/API/token vars inherited
+        # DEMO HARDENING: If docker is missing, strictly mock network failure
+        "HTTP_PROXY": "http://0.0.0.0:1",
+        "HTTPS_PROXY": "http://0.0.0.0:1",
+        "ALL_PROXY": "http://0.0.0.0:1",
     }
     return _spawn([interpreter, entry], stdin, timeout, cwd=workdir, env=env)
 

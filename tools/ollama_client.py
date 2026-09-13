@@ -82,8 +82,30 @@ def chat(
     if think is not None:
         payload["think"] = think
 
+    # =========================================================
+    # DEMO HARDENING: Cache Layer (Instant Responses for Pitch)
+    # =========================================================
+    import hashlib
+    payload_str = json.dumps(payload, sort_keys=True)
+    query_hash = hashlib.sha256(payload_str.encode()).hexdigest()
+    
+    cache_dir = Path("workspace_data/cache")
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = cache_dir / f"{query_hash}.json"
+    
+    if cache_file.exists():
+        print(f"\n⚡ [CACHE HIT] Returning instant response for {model}...")
+        return json.loads(cache_file.read_text())
+
+    # Actual Inference
     data = _post("/api/chat", payload)
-    return data.get("message", {})
+    result = data.get("message", {})
+    
+    # Save to Cache for next time
+    if result:
+        cache_file.write_text(json.dumps(result))
+        
+    return result
 
 
 def embed(model: str, texts: list[str]) -> list[list[float]]:

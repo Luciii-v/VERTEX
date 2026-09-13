@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV /Users/mahathavivaanveer/Downloads/sovereign-workbench-2/.venv
+set -gx VIRTUAL_ENV /Users/mahathavivaanveer/Developer/SIH/VERTEX/.venv
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH
