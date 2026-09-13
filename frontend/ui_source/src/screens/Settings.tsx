@@ -97,7 +97,7 @@ export const Settings: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => addToast('MODEL SELECTION', 'QWEN3.5-9B Q4_K_M is optimized for on-premise 16GB VRAM.', 'info')}
+                  onClick={() => addToast('MODEL SELECTION', 'QWEN3.5-9B Q4_K_M is optimized for on-premise sovereign hardware.', 'info')}
                   className="px-3 py-1.5 bg-textPrimary/20 text-textPrimary border border-border rounded font-bold hover:bg-textPrimary/30 text-xs"
                 >
                   Change Model

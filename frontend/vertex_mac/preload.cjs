@@ -6,6 +6,7 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     getAuthStatus: () => electron_1.ipcRenderer.invoke('auth:status'),
     setInitialCredentials: (username, password) => electron_1.ipcRenderer.invoke('auth:setup', { username, password }),
     login: (username, password) => electron_1.ipcRenderer.invoke('auth:login', { username, password }),
+    demoLogin: (role) => electron_1.ipcRenderer.invoke('auth:demoLogin', { role }),
     logout: () => electron_1.ipcRenderer.invoke('auth:logout'),
     onSecurityAudit: (callback) => {
         const listener = (_event, entry) => callback(entry);

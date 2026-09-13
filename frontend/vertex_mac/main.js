@@ -153,6 +153,14 @@ ipcMain.handle('auth:setup', async (_event, payload) => {
     }
 });
 
+
+ipcMain.handle('auth:demoLogin', async (_event, payload) => {
+    activeUsername = 'demo_' + payload.role;
+    activeRole = payload.role;
+    await recordSecurityEvent('DEMO_LOGIN', 'SUCCESS', `Demo login as ${payload.role}`);
+    return { ok: true, username: activeUsername, role: activeRole };
+});
+
 ipcMain.handle('auth:login', async (_event, payload) => {
     try {
         const res = await fetch('http://127.0.0.1:8000/auth/login', {

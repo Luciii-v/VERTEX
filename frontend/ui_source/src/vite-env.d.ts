@@ -7,6 +7,7 @@ interface Window {
     setInitialCredentials: (username: string, password: string) => Promise<{ ok: boolean; message?: string }>;
     login: (username: string, password: string) => Promise<{ ok: boolean; message?: string; username?: string }>;
     logout: () => Promise<{ ok: boolean }>;
+    demoLogin: (role: string) => Promise<{ ok: boolean; username: string; role: string }>;
     onSecurityAudit: (callback: (entry: unknown) => void) => () => void;
     
     // User Management

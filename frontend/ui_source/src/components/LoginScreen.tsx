@@ -37,7 +37,40 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ needsSetup, onAuthenti
             {needsSetup && <label className="block text-sm font-medium text-slate-300">Confirm password<input value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} type="password" autoComplete="new-password" minLength={12} maxLength={128} required className="mt-2 w-full rounded-lg border border-white/10 bg-black/25 px-3.5 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-200/60 focus:ring-2 focus:ring-cyan-200/10" placeholder="Repeat your password" /></label>}
             {message && <div className="flex gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-3 text-xs leading-5 text-slate-300"><AlertCircle className="h-4 w-4 shrink-0 text-cyan-200" />{message}</div>}
             <button disabled={submitting} className="flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-semibold text-[#0b1018] transition hover:bg-cyan-50 disabled:cursor-wait disabled:opacity-60">{submitting ? 'Signing in…' : needsSetup ? 'Create account' : 'Sign in'} <ArrowRight className="h-4 w-4" /></button>
-          </form><p className="mt-8 flex items-start gap-2 text-xs leading-5 text-slate-500"><LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0" />This workstation records sign-in activity and protected-window actions.</p>
+          
+          </form>
+          
+          {!needsSetup && (
+            <div className="mt-8 border-t border-white/10 pt-6">
+              <p className="text-xs font-semibold tracking-wider text-slate-500 mb-3 text-center uppercase">Hackathon Quick Login</p>
+              <div className="grid grid-cols-3 gap-2">
+                <button 
+                  onClick={async () => { const res = await window.electronAPI.demoLogin('admin'); onAuthenticated(res.username, res.role); }}
+                  type="button" 
+                  className="py-2 text-[10px] font-bold text-violet-400 bg-violet-500/10 border border-violet-500/20 rounded hover:bg-violet-500/20 transition uppercase tracking-wider"
+                >
+                  Admin
+                </button>
+                <button 
+                  onClick={async () => { const res = await window.electronAPI.demoLogin('engineer'); onAuthenticated(res.username, res.role); }}
+                  type="button" 
+                  className="py-2 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded hover:bg-emerald-500/20 transition uppercase tracking-wider"
+                >
+                  Engineer
+                </button>
+                <button 
+                  onClick={async () => { const res = await window.electronAPI.demoLogin('operator'); onAuthenticated(res.username, res.role); }}
+                  type="button" 
+                  className="py-2 text-[10px] font-bold text-slate-400 bg-slate-500/10 border border-slate-500/20 rounded hover:bg-slate-500/20 transition uppercase tracking-wider"
+                >
+                  Operator
+                </button>
+              </div>
+            </div>
+          )}
+
+          <p className="mt-8 flex items-start gap-2 text-xs leading-5 text-slate-500">
+<LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0" />This workstation records sign-in activity and protected-window actions.</p>
         </div></section>
       </div>
     </div>

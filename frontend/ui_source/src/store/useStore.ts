@@ -94,7 +94,7 @@ export const useStore = create<AppState>((set, get) => ({
     {
       id: 'toast-init',
       title: 'SOVEREIGN SYSTEM ACTIVE',
-      message: 'Air-Gap Cluster online. QWEN3.5-9B ready on 16GB VRAM.',
+      message: 'Air-Gap Cluster online. QWEN3.5-9B sovereign system ready.',
       type: 'success',
       timestamp: new Date().toLocaleTimeString(),
     }
