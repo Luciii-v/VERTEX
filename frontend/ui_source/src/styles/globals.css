@@ -1,0 +1,193 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    /* Scale the interface up a little while preserving its existing layout rhythm. */
+    font-size: 17px;
+  }
+
+  :root {
+    /* LIGHT MODE: Brutalist Minimalist */
+    --color-base: #f7f7f7;
+    --color-panel: #ffffff;
+    --color-border: #d4d4d4;
+    --color-border-hover: #171717;
+    --color-text-primary: #171717;
+    --color-text-secondary: #737373;
+    --color-accent: #000000;
+    --color-error: #ef4444;
+  }
+
+  .dark {
+    /* DARK MODE: Midnight black with blue-black depth. */
+    --color-base: #070b12;
+    --color-panel: #111823;
+    --color-border: #2a3544;
+    --color-border-hover: #f1f5f9;
+    --color-text-primary: #f1f5f9;
+    --color-text-secondary: #aeb7c4;
+    --color-accent: #ffffff;
+    --color-error: #ef4444;
+  }
+
+  body {
+    background-color: var(--color-base);
+    color: var(--color-text-primary);
+    font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+    background-image: linear-gradient(135deg, #111b2b 0%, #070b12 48%, #030508 100%);
+  }
+}
+
+.app-background {
+  background-color: var(--color-base);
+  background-image:
+    radial-gradient(ellipse at 12% -20%, rgba(34, 67, 104, 0.46), transparent 48%),
+    radial-gradient(ellipse at 105% 112%, rgba(15, 39, 66, 0.38), transparent 52%),
+    linear-gradient(135deg, #111b2b 0%, #070b12 48%, #030508 100%);
+}
+
+/* The original UI used 9–11px utility labels. Keep their visual role, but make
+   them legible at normal desktop viewing distances. */
+@layer utilities {
+  .text-\[9px\] { font-size: 0.75rem; }
+  .text-\[10px\] { font-size: 0.8125rem; }
+  .text-\[11px\] { font-size: 0.875rem; }
+}
+
+/* Minimalist Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-base);
+  border-left: 1px solid var(--color-border);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Base Component Classes */
+.cli-panel {
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border);
+}
+
+.cli-button {
+  background-color: var(--color-base);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  transition: all 0.15s ease-in-out;
+}
+.cli-button:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+  color: var(--color-base);
+}
+.cli-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.cli-button-primary {
+  background-color: var(--color-accent);
+  color: var(--color-base);
+  border: 1px solid var(--color-accent);
+  transition: all 0.15s ease-in-out;
+}
+.cli-button-primary:hover:not(:disabled) {
+  opacity: 0.8;
+}
+.cli-button-primary:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* Special High-Priority Workflow Buttons */
+@keyframes shimmer-sweep {
+  0% { transform: skewX(-20deg) translateX(-150%); }
+  50% { transform: skewX(-20deg) translateX(250%); }
+  100% { transform: skewX(-20deg) translateX(250%); }
+}
+
+.cli-button-special {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-text-primary);
+  color: var(--color-base);
+  border: 1px solid var(--color-text-primary);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cli-button-special::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0; width: 30%;
+  background: linear-gradient(90deg, transparent, var(--color-base), transparent);
+  opacity: 0.3;
+  animation: shimmer-sweep 3s infinite;
+}
+.cli-button-special:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.cli-button-special:active:not(:disabled) {
+  transform: translateY(0) scale(0.96);
+}
+
+/* Subtle CRT scanline that is barely visible */
+.crt-overlay::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
+  background-size: 100% 4px;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* --- SPLASH SCREEN STATE OF THE ART ANIMATIONS --- */
+@keyframes splash-bg {
+  0% { transform: scale(1.2); opacity: 0; }
+  100% { transform: scale(1); opacity: 0.4; }
+}
+
+@keyframes splash-text {
+  0% { filter: blur(20px); opacity: 0; letter-spacing: 1.5em; transform: scale(1.1); }
+  50% { filter: blur(5px); opacity: 0.8; }
+  100% { filter: blur(0px); opacity: 1; letter-spacing: 0.5em; transform: scale(1); }
+}
+
+@keyframes splash-divider {
+  0% { transform: scaleX(0); opacity: 0; }
+  100% { transform: scaleX(1); opacity: 1; }
+}
+
+@keyframes splash-tagline {
+  0% { opacity: 0; transform: translateY(15px); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes splash-loader {
+  0% { width: 0%; transform: translateX(-100%); }
+  50% { width: 40%; transform: translateX(50%); }
+  100% { width: 100%; transform: translateX(100%); }
+}
+
+@keyframes splash-exit {
+  0% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+  40% { transform: translateY(2%) scale(0.98); opacity: 1; filter: blur(2px); }
+  100% { transform: translateY(-100%) scale(1.05); opacity: 0; filter: blur(10px); }
+}
+
+.animate-splash-bg { animation: splash-bg 3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-splash-text { animation: splash-text 2s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s; opacity: 0; }
+.animate-splash-divider { animation: splash-divider 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 1s; opacity: 0; }
+.animate-splash-tagline { animation: splash-tagline 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 1.4s; opacity: 0; }
+.animate-splash-loader { animation: splash-loader 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+.animate-splash-exit { animation: splash-exit 0.8s cubic-bezier(0.8, 0, 0.2, 1) forwards; }
