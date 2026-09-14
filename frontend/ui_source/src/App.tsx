@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useStore } from './store/useStore';
 import { TopBar } from './components/TopBar';
@@ -61,6 +62,7 @@ export const App: React.FC = () => {
   }, [appendAuditLog]);
 
   const handleLogout = async () => {
+    setAuthState(prev => ({ ...prev, loading: true }));
     await window.electronAPI.logout();
     const status = await window.electronAPI.getAuthStatus();
     setAuthState({ loading: false, authenticated: false, needsSetup: status.needsSetup });
@@ -103,7 +105,12 @@ export const App: React.FC = () => {
   }, [setRoute, isLeftSidebarOpen, toggleLeftSidebar, messages, approveAction, denyAction]);
 
   if (authState.loading) {
-    return <div className="app-background h-screen w-screen flex items-center justify-center text-textPrimary"><p className="rounded-lg border border-border bg-panel px-5 py-3 text-sm">Starting secure session service…</p></div>;
+    return (
+      <div className="app-background h-screen w-screen flex flex-col items-center justify-center text-textPrimary">
+        <Loader2 className="w-8 h-8 animate-spin text-cyan-400 mb-4" />
+        <p className="rounded-lg border border-border bg-panel px-5 py-3 text-sm">Starting secure session service…</p>
+      </div>
+    );
   }
 
   if (startupError) {
